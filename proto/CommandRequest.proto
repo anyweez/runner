@@ -1,0 +1,5 @@
+
+message CommandRequest {
+	optional string	name	=	1;
+	repeated string params	=	2;
+}

@@ -1,0 +1,8 @@
+{
+	"commands": [
+		{
+			"name": "lolcalc",
+			"path": "/home/pi/git/lolcalc/simulator"
+		}
+	]
+}
