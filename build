@@ -1,0 +1,6 @@
+#!/bin/bash
+GOPATH=`pwd`
+
+protoc --plugin=../cleo/bin/protoc-gen-go --go_out=src/proto proto/CommandRequest.proto
+go build runner
+go build emit
