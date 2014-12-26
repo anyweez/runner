@@ -8,7 +8,7 @@ package main
 import (
 	"encoding/json"
 	"io/ioutil"
-	gproto "code.google.com/p/goprotobuf/proto"
+	gproto "github.com/golang/protobuf/proto"
 	"flag"
 	"fmt"
 	beanstalk "github.com/kr/beanstalk"

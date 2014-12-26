@@ -4,7 +4,7 @@ import (
 	beanstalk "github.com/kr/beanstalk"
 	"flag"
 	"log"
-	gproto "code.google.com/p/goprotobuf/proto"
+	gproto "github.com/golang/protobuf/proto"
 	"os"	
 	"time"
 	cr "proto"
