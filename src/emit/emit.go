@@ -4,7 +4,7 @@ import (
 	beanstalk "github.com/kr/beanstalk"
 	"flag"
 	"log"
-	gproto "code.google.com/p/goprotobuf/proto"
+	gproto "github.com/golang/protobuf/proto"
 	"os"	
 	"time"
 	cr "proto"
@@ -18,13 +18,20 @@ func main() {
 	
 	// Find the divider between emit params and params to pass through.
 	fwdArgs := make([]string, 0)
+	// Internal arguments (to be used by emit)
+	intArgs := make([]string, 0)
 	fwdCmd := ""
 	for i, cmd := range fullArgs {
 		if cmd == "--" {
+			// +1 because fullArgs officially starts at 1, not 0.
+			intArgs = os.Args[:i+1]
 			fwdCmd = fullArgs[i+1]
 			fwdArgs = fullArgs[i+2:]
 		}
 	}
+
+	os.Args = intArgs
+	flag.Parse()
 	
 	if fwdCmd == "" {
 		log.Fatal("No command to forward found.")

@@ -8,7 +8,7 @@ package main
 import (
 	"encoding/json"
 	"io/ioutil"
-	gproto "code.google.com/p/goprotobuf/proto"
+	gproto "github.com/golang/protobuf/proto"
 	"flag"
 	"fmt"
 	beanstalk "github.com/kr/beanstalk"
@@ -63,8 +63,6 @@ func launch(c Command, finished chan bool, conn *beanstalk.Conn, id uint64) {
 	}
 
 	activeJobs -= 1
-
-	time.Sleep(2 * time.Second)
 
 	// Job is finished so open up the slot again.
 	finished <- true
@@ -153,6 +151,8 @@ func main() {
 		Name: *TARGET_QUEUE,
 	}
 	
+	conn.TubeSet = *beanstalk.NewTubeSet(conn, *TARGET_QUEUE)
+	
 	for {
 		// If we're received a sigint, we should end the process gracefully.
 		if !running {
@@ -161,7 +161,7 @@ func main() {
 		}
 		
 		request := cr.CommandRequest{}
-		id, body, err := conn.Reserve(60 * time.Second)
+		id, body, err := conn.Reserve(2 * time.Second)
 
 		// If we didn't get an actual command, continue polling.
 		if err != nil {

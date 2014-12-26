@@ -1,7 +1,13 @@
 #!/bin/bash
 GOPATH=`pwd`
 
+# Install golang protobuf compiler and library if they aren't present.
+go get -u github.com/golang/protobuf/{proto,protoc-gen-go}
+
+# Install other dependencies.
+go get -u github.com/kr/beanstalk
+
 mkdir -p src/proto
-protoc --plugin=../cleo/bin/protoc-gen-go --go_out=src/proto proto/CommandRequest.proto
+protoc --plugin=bin/protoc-gen-go --go_out=src/ proto/CommandRequest.proto
 go build runner
 go build emit
