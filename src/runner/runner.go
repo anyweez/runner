@@ -12,7 +12,9 @@ import (
 	"flag"
 	"fmt"
 	beanstalk "github.com/kr/beanstalk"
+	"os"
 	"os/exec"
+	"os/signal"
 	cr "proto"
 	"log"
 	"time"
@@ -96,12 +98,39 @@ func transformRequest(request cr.CommandRequest) Command {
 }
 
 /**
+ * Listen for a SIGINT signal. If we detect one, stop accepting new
+ * messages from the queue but finish launching anything that's already
+ * been pulled off.
+ */
+func signals(running *bool, sig chan os.Signal) {
+	for {
+		// Check to see if a sigint has been received. If so, stop
+		// accepting new jobs.
+		select {
+			case <- sig:
+				*running = false
+				log.Println("Received interrupt signal; finishing polling session.")
+				return
+			default:
+				break
+		}
+	}
+}
+
+/**
  * Read in a list of eligible commands and execute each one in parallel (up to 
  * a limit of LIMIT).
  */
 func main() {
 	flag.Parse()
 
+	// Stop accepting new commands and shutdown when SIGINT is received.
+	sig := make(chan os.Signal, 1)
+	signal.Notify(sig, os.Interrupt)
+	running := true
+	// Monitor the state of this channel in a separate goroutine.
+	go signals(&running, sig)
+	
 	commands := readCmds(*COMMAND_FILE)
 	available := make(chan bool, *LIMIT)
 
@@ -125,6 +154,12 @@ func main() {
 	}
 	
 	for {
+		// If we're received a sigint, we should end the process gracefully.
+		if !running {
+			log.Println("Shutting down runner...")
+			return
+		}
+		
 		request := cr.CommandRequest{}
 		id, body, err := conn.Reserve(60 * time.Second)
 
