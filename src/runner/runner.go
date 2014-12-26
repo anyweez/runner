@@ -142,7 +142,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	log.Println("Connected to beanstalkd queue '" + *TARGET_QUEUE + "' at " + *SOURCE)
+	log.Println("Connected to beanstalkd at " + *SOURCE)
 	
 	// Set the connection's tube to make sure we're pulling the desired
 	// jobs.
@@ -161,15 +161,13 @@ func main() {
 		}
 		
 		request := cr.CommandRequest{}
-		id, body, err := conn.Reserve(60 * time.Second)
-		log.Println("Blocking ended")
+		id, body, err := conn.Reserve(2 * time.Second)
 
 		// If we didn't get an actual command, continue polling.
 		if err != nil {
 			continue
 		}
 		
-		log.Println("Command received.")
 		gproto.Unmarshal(body, &request)
 		command := transformRequest(request)
 
