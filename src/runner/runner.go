@@ -54,7 +54,7 @@ func readCmds(filename string) map[string]Command {
  * Once the job has been validated, launch is kicked off on a separate
  * goroutine to launch the command as a separate process.
  */
-func launch(c Command, finished chan bool, conn *beanstalk.Conn, id uint64) {
+func launch(c Command, finished chan bool) {	
 	cmd := exec.Command(c.Path, c.Parameters...)
 	err := cmd.Run()
 
@@ -66,7 +66,7 @@ func launch(c Command, finished chan bool, conn *beanstalk.Conn, id uint64) {
 
 	// Job is finished so open up the slot again.
 	finished <- true
-	conn.Delete(id)
+//	conn.Delete(id)
 }
 
 /**
@@ -162,7 +162,7 @@ func main() {
 		
 		request := cr.CommandRequest{}
 		id, body, err := conn.Reserve(2 * time.Second)
-
+		
 		// If we didn't get an actual command, continue polling.
 		if err != nil {
 			continue
@@ -176,8 +176,9 @@ func main() {
 			// Wait for an open job slot to be available.
 			<-available
 			log.Println(fmt.Sprintf("Executing requested command '%s'", cmd.String()))
-			go launch(cmd, available, conn, id)
-
+			go launch(cmd, available)
+			
+			conn.Delete(id)
 			activeJobs += 1
 		} else {
 			log.Println(fmt.Sprintf("Invalid command requested: '%s'", cmd.String()))
