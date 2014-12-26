@@ -151,6 +151,8 @@ func main() {
 		Name: *TARGET_QUEUE,
 	}
 	
+	conn.TubeSet = *beanstalk.NewTubeSet(conn, *TARGET_QUEUE)
+	
 	for {
 		// If we're received a sigint, we should end the process gracefully.
 		if !running {
