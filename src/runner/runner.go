@@ -64,8 +64,6 @@ func launch(c Command, finished chan bool, conn *beanstalk.Conn, id uint64) {
 
 	activeJobs -= 1
 
-	time.Sleep(2 * time.Second)
-
 	// Job is finished so open up the slot again.
 	finished <- true
 	conn.Delete(id)
