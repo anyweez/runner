@@ -168,13 +168,13 @@ func main() {
 			continue
 		}
 		
+		<-available
 		gproto.Unmarshal(body, &request)
 		command := transformRequest(request)
 
 		cmd, valid := loadCommand(command, commands)
 		if valid {
 			// Wait for an open job slot to be available.
-			<-available
 			log.Println(fmt.Sprintf("Executing requested command '%s'", cmd.String()))
 			go launch(cmd, available)
 			
