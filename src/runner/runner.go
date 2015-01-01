@@ -112,6 +112,9 @@ func signals(running *bool, sig chan os.Signal) {
 			default:
 				break
 		}
+		
+		// Pause for a second; no need to check this any more regularly.
+		time.Sleep(1 * time.Second)
 	}
 }
 
